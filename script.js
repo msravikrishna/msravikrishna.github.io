@@ -76,7 +76,46 @@ document.querySelectorAll('.project-card, .skill-category, .contact-item').forEa
     observer.observe(element);
 });
 
-// Add fadeInUp animation to CSS
+// ============================================
+// Counting Animation for Statistics
+// ============================================
+
+function animateNumbers() {
+    const stats = document.querySelectorAll('.stat-number');
+    
+    stats.forEach(stat => {
+        const targetValue = parseInt(stat.textContent);
+        let currentValue = 0;
+        const increment = Math.ceil(targetValue / 50);
+        
+        const counter = setInterval(() => {
+            currentValue += increment;
+            if (currentValue >= targetValue) {
+                stat.textContent = targetValue + (stat.textContent.includes('+') ? '+' : '');
+                clearInterval(counter);
+            } else {
+                stat.textContent = currentValue;
+            }
+        }, 30);
+    });
+}
+
+// Trigger counting animation when stats section is visible
+const statsObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            animateNumbers();
+            statsObserver.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.5 });
+
+const statsSection = document.querySelector('.quick-stats');
+if (statsSection) {
+    statsObserver.observe(statsSection);
+}
+
+// Add animations to CSS
 const style = document.createElement('style');
 style.textContent = `
     @keyframes fadeInUp {
@@ -89,8 +128,118 @@ style.textContent = `
             transform: translateY(0);
         }
     }
+
+    @keyframes float-slow {
+        0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-15px) rotate(2deg);
+        }
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% {
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
+        }
+        50% {
+            box-shadow: 0 0 25px rgba(37, 99, 235, 0.6);
+        }
+    }
+
+    @keyframes bounce-in-out {
+        0%, 100% {
+            transform: translateX(0px);
+        }
+        50% {
+            transform: translateX(8px);
+        }
+    }
+
+    @keyframes slide-left {
+        0% {
+            transform: translateX(100%);
+        }
+        100% {
+            transform: translateX(-100%);
+        }
+    }
+
+    .stat-number {
+        animation: pulse-glow 2s ease-in-out infinite;
+        display: inline-block;
+    }
+
+    .project-card:hover {
+        animation: bounce-in-out 0.6s ease-in-out;
+    }
+
+    .floating-box {
+        animation: float-slow 4s ease-in-out infinite !important;
+    }
+
+    .tech-tag, .exp-tech-tag {
+        transition: all 0.3s ease;
+    }
+
+    .tech-tag:hover, .exp-tech-tag:hover {
+        animation: bounce-in-out 0.4s ease-in-out;
+    }
 `;
 document.head.appendChild(style);
+
+// ============================================
+// Animated Background Particles
+// ============================================
+
+function createFloatingObjects() {
+    const container = document.querySelector('.hero');
+    if (!container) return;
+
+    for (let i = 0; i < 5; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'floating-particle';
+        particle.style.cssText = `
+            position: absolute;
+            width: ${Math.random() * 30 + 10}px;
+            height: ${Math.random() * 30 + 10}px;
+            background: rgba(255, 255, 255, ${Math.random() * 0.1 + 0.05});
+            border-radius: 50%;
+            top: ${Math.random() * 100}%;
+            left: ${Math.random() * 100}%;
+            animation: float-particle ${Math.random() * 10 + 15}s infinite ease-in-out;
+            pointer-events: none;
+            z-index: ${i};
+        `;
+        container.appendChild(particle);
+    }
+}
+
+// Add particle animation keyframes
+const particleStyle = document.createElement('style');
+particleStyle.textContent = `
+    @keyframes float-particle {
+        0%, 100% {
+            transform: translateY(0px) translateX(0px) scale(1);
+            opacity: 0.05;
+        }
+        25% {
+            transform: translateY(-50px) translateX(50px) scale(1.2);
+            opacity: 0.1;
+        }
+        50% {
+            transform: translateY(-100px) translateX(-30px) scale(0.8);
+            opacity: 0.05;
+        }
+        75% {
+            transform: translateY(-50px) translateX(-60px) scale(1.1);
+            opacity: 0.08;
+        }
+    }
+`;
+document.head.appendChild(particleStyle);
+
+createFloatingObjects();
 
 // ============================================
 // Active Navigation Link Highlight
